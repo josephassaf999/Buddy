@@ -13,4 +13,4 @@ key.properties
 **/*.keystore
 **/*.jks
 
-/mydirectory/firebase_init.dart
+/lib/firebase_init.dart
