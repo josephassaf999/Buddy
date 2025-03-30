@@ -12,4 +12,5 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
-firebase_init.dart
+
+/mydirectory/firebase_init.dart
