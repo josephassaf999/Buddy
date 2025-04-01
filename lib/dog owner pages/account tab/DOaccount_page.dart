@@ -3,10 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../welcome/welcome.dart';
-import 'DW_account_edit_page.dart';
+import 'DOprofile edit page.dart';
 
-class DWAccountScreen extends StatelessWidget {
-  const DWAccountScreen({Key? key}) : super(key: key);
+class DOAccountScreen extends StatelessWidget {
+  const DOAccountScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ class DWAccountScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const EditProfileScreen(),
+                    builder: (context) => const DOEditProfileScreen(),
                   ),
                 );
               },
@@ -60,7 +60,7 @@ class DWAccountScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const EditProfileScreen(),
+                    builder: (context) => const DOEditProfileScreen(),
                   ),
                 );
               },
@@ -76,7 +76,7 @@ class DWAccountScreen extends StatelessWidget {
             ),
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection('Dog walker') // Use Dog walker collection
+                  .collection('Dog owner') // Use Dog walker collection
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -140,7 +140,7 @@ class DWAccountScreen extends StatelessWidget {
             TextButton(
               child: const Text(
                 'Cancel',
-                style: TextStyle(color: Colors.blue),
+                style: TextStyle(color: Colors. black),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -150,9 +150,9 @@ class DWAccountScreen extends StatelessWidget {
               child: const Text('Delete', style: TextStyle(color: Colors.red)),
               onPressed: () async {
                 try {
-                  // Delete user document from 'Dog walker' collection in Firestore
+                  // Delete user document from 'Dog owner' collection in Firestore
                   await FirebaseFirestore.instance
-                      .collection('Dog walker')
+                      .collection('Dog owner')
                       .doc(userId)
                       .delete();
 

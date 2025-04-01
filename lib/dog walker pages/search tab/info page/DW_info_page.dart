@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 
 class InfoPage extends StatelessWidget {
-  final String item;  // Dog's name
+  final String name;  // Dog's name
   final String location;  // Dog's location
   final String breed;  // Dog's breed
-  final String age;  // Dog's breed
+  final String age;  // Dog's age
+  final String phone_number;
   final List<String> imageUrls;  // List of image URLs for the dog
+  final String description;  // Dog's description
 
   InfoPage({
     Key? key,
-    required this.item,
+    required this.name,
     required this.location,
     required this.breed,
     required this.age,
     required this.imageUrls,
+    required this.phone_number,
+    required this.description,
   }) : super(key: key);
 
   @override
@@ -23,7 +27,7 @@ class InfoPage extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.black,
         title: Text(
-          item,  // Display the dog's name in the AppBar
+          name,  // Display the dog's name in the AppBar
           style: const TextStyle(color: Colors.white),
         ),
       ),
@@ -51,8 +55,9 @@ class InfoPage extends StatelessWidget {
                   : const Center(child: Text("No images available")),
             ),
 
-            // Dog details
+            // Dog details container
             Container(
+              width: double.infinity,
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
@@ -60,58 +65,37 @@ class InfoPage extends StatelessWidget {
                     color: Colors.grey.withOpacity(0.5),
                     spreadRadius: 1,
                     blurRadius: 5,
-                    offset: const Offset(0, 3),
+                    offset: const Offset(0, 5),
                   ),
                 ],
                 borderRadius: BorderRadius.circular(10),
               ),
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Dog's name
                   Text(
-                    item,
+                    name,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.blue.shade900,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  // Dog's location
+                  Text('Location: $location', style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 12),
+                  Text('Breed: $breed', style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 12),
+                  Text('Age: $age', style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 12),
+                  Text('Phone Number: $phone_number', style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 8),
                   Text(
-                    'Location: $location',
-                    style: const TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  // Breed and description section
-                  Text(
-                    '$breed',
-                    style: const TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
                     'Description:',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
                   ),
-                  const SizedBox(height: 8),
-                  // Add any other description or information
-                  const Text(
-                    'This dog is friendly and enjoys long walks. He loves playing in the park and is very social with other dogs.',
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
+                  SizedBox(height: 8),
+                  Text(description, style: TextStyle(fontSize: 16)),
                 ],
               ),
             ),

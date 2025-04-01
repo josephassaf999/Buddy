@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'account tab/DOaccount_page.dart';
+import 'home_tab/main/DOHomepage.dart';
 
 class DogOwnerHomepage extends StatefulWidget {
   const DogOwnerHomepage({Key? key}) : super(key: key);
@@ -13,8 +15,8 @@ class _DogOwnerHomePageState extends State<DogOwnerHomepage> {
 
   // ✅ Add pages to prevent RangeError
   final List<Widget> _pages = [
-    Center(child: Text("Home Page", style: TextStyle(fontSize: 24))),
-    Center(child: Text("Account Page", style: TextStyle(fontSize: 24))),
+    DOHomeScreen(),
+    DOAccountScreen(),
   ];
 
   @override
@@ -24,14 +26,14 @@ class _DogOwnerHomePageState extends State<DogOwnerHomepage> {
       child: Scaffold(
         body: _pages[_currentIndex], // ✅ No more empty list error
         bottomNavigationBar: Container(
-          color: Colors.blue,
+          color: Colors.black,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
             child: GNav(
-              backgroundColor: Colors.blue,
+              backgroundColor: Colors.black,
               color: Colors.white,
               activeColor: Colors.white,
-              tabBackgroundColor: Colors.blue.shade300,
+              tabBackgroundColor: Colors.black,
               gap: 8,
               selectedIndex: _currentIndex,
               onTabChange: (index) {
@@ -60,7 +62,7 @@ class _DogOwnerHomePageState extends State<DogOwnerHomepage> {
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
+            child: const Text('Cancel', style: TextStyle(color: Colors.black)),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
