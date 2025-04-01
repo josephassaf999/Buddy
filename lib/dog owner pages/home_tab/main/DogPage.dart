@@ -17,7 +17,6 @@ class MyDogScreen extends StatefulWidget {
 class MyDogScreenState extends State<MyDogScreen> {
   late Map<String, dynamic> dogDataMap;
   final FirebaseStorage _storage = FirebaseStorage.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> _getImage(ImageSource source) async {
     final picker = ImagePicker();
