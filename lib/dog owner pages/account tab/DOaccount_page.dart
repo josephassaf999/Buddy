@@ -16,7 +16,7 @@ class DOAccountScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.blue,
         title: const Text(
           'Account',
           style: TextStyle(color: Colors.white, fontFamily: "Roboto"),

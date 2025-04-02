@@ -36,14 +36,14 @@ class _DogWalkerHomepageState extends State<DogWalkerHomepage> {
         ),
       ),
       bottomNavigationBar: Container(
-        color: Colors.black,
+        color: Colors.blue,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
           child: GNav(
-            backgroundColor: Colors.black,
+            backgroundColor: Colors.blue,
             color: Colors.white,
             activeColor: Colors.white,
-            tabBackgroundColor: Colors.black,
+            tabBackgroundColor: Colors.blue,
             gap: 10,
             onTabChange: (index) {
               setState(() {
@@ -83,7 +83,7 @@ class _DogWalkerHomepageState extends State<DogWalkerHomepage> {
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text(
               'Cancel',
-              style: TextStyle(color: Colors.black),
+              style: TextStyle(color: Colors.blue),
             ),
           ),
           TextButton(

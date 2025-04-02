@@ -25,7 +25,7 @@ class InfoPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.blue,
         title: Text(
           name,  // Display the dog's name in the AppBar
           style: const TextStyle(color: Colors.white),
@@ -79,7 +79,7 @@ class InfoPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue.shade900,
+                      color: Colors.blue,
                     ),
                   ),
                   Text('Location: $location', style: TextStyle(fontSize: 16)),

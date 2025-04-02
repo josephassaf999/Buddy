@@ -12,7 +12,7 @@ class BMessaging extends StatelessWidget {
           'Messaging',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.blue,
         iconTheme: IconThemeData(color: Colors.white),
       ),
       body: StreamBuilder(

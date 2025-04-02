@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
           style: TextStyle(color: Colors.white),
         ),
         elevation: 0,
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.blue,
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
@@ -188,7 +188,7 @@ class _LoginPageState extends State<LoginPage> {
                         },
                         minWidth: double.infinity,
                         height: 60,
-                        color: Colors.black,
+                        color: Colors.blue,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(50),
                         ),

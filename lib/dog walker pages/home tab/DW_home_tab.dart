@@ -14,7 +14,7 @@ class DWHomeScreen extends StatelessWidget {
           'Home',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.blue,
       ),
       body: FutureBuilder(
         future: FirebaseFirestore.instance.collection('Dog owner').get(),

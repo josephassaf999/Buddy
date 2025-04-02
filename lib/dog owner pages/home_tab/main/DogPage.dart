@@ -5,10 +5,16 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MyDogScreen extends StatefulWidget {
-  final String dogId;
-  final Map<String, dynamic> dogData;
+  final String ownerId; // Owner's ID
+  final String dogId; // Dog's ID
+  final Map<String, dynamic> dogData; // Dog's data (e.g., name, description)
 
-  MyDogScreen({required this.dogId, required this.dogData});
+  // Constructor that takes ownerId, dogId, and dogData
+  MyDogScreen({
+    required this.ownerId,
+    required this.dogId,
+    required this.dogData,
+  });
 
   @override
   State<MyDogScreen> createState() => MyDogScreenState();
@@ -17,70 +23,89 @@ class MyDogScreen extends StatefulWidget {
 class MyDogScreenState extends State<MyDogScreen> {
   late Map<String, dynamic> dogDataMap;
   final FirebaseStorage _storage = FirebaseStorage.instance;
+  List<String> imageUrls = []; // Store uploaded image URLs
 
+  @override
+  void initState() {
+    super.initState();
+    dogDataMap = widget.dogData;
+    _loadExistingImages();
+  }
+
+  // 🟢 Load existing images from Firestore
+  Future<void> _loadExistingImages() async {
+    try {
+      DocumentSnapshot doc = await FirebaseFirestore.instance
+          .collection('Dog owner')
+          .doc(widget.ownerId)
+          .collection('dogs')
+          .doc(widget.dogId)
+          .get();
+
+      if (doc.exists && doc.data() != null) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        setState(() {
+          imageUrls = List<String>.from(data['images'] ?? []);
+        });
+      }
+    } catch (e) {
+      print("Error loading images: $e");
+    }
+  }
+
+  // 🟢 Pick an image from the gallery or camera
   Future<void> _getImage(ImageSource source) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: source);
 
     if (pickedFile != null) {
       File imageFile = File(pickedFile.path);
-
-      try {
-        // Create a unique file path in Firebase Storage
-        String fileName = 'dog_images/${widget.dogId}/${DateTime.now().millisecondsSinceEpoch}.jpg';
-        print('Uploading file: $fileName');
-
-        // Upload the image to Firebase Storage
-        UploadTask uploadTask = _storage.ref().child(fileName).putFile(imageFile);
-
-        // Wait for the upload task to complete
-        TaskSnapshot snapshot = await uploadTask;
-
-        // Get the download URL of the uploaded image
-        String downloadUrl = await snapshot.ref.getDownloadURL();
-        print('Image URL: $downloadUrl');
-
-        // Save the image URL to the Firestore dog subcollection
-        await _saveImageUrlToFirestore(downloadUrl);
-
-        // Update the UI with the new image URL (optional, if you want to display immediately)
-        setState(() {
-          dogDataMap['image_url'] = downloadUrl;
-        });
-
-      } catch (e) {
-        print('Error uploading image: $e');
-      }
+      _uploadImage(imageFile);
     } else {
-      print('No image picked');
+      print('No image selected.');
     }
   }
 
+  // 🔹 Upload image to Firebase Storage and get URL
+  Future<void> _uploadImage(File imageFile) async {
+    try {
+      String fileName = 'dog_images/${widget.dogId}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      Reference storageRef = _storage.ref().child(fileName);
+
+      UploadTask uploadTask = storageRef.putFile(imageFile);
+      TaskSnapshot snapshot = await uploadTask.whenComplete(() => {});
+
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+      print("✅ Upload Success: $downloadUrl");
+
+      await _saveImageUrlToFirestore(downloadUrl); // Save to Firestore
+
+      // Update UI
+      setState(() {
+        imageUrls.add(downloadUrl);
+      });
+    } catch (e) {
+      print("❌ Upload Error: $e");
+    }
+  }
+
+  // 🔹 Save image URL to Firestore in the 'dogs' subcollection
   Future<void> _saveImageUrlToFirestore(String downloadUrl) async {
     try {
-      // Assuming your dog ID is available in widget.dogId
       DocumentReference dogDocRef = FirebaseFirestore.instance
-          .collection('Dog owner')  // Assuming this is the parent collection
-          .doc(widget.dogId)        // Document reference for this specific dog
-          .collection('dogs')       // The subcollection for the dog's info
-          .doc(widget.dogId);       // Document for this specific dog (use dogId or another identifier)
+          .collection('Dog owner')
+          .doc(widget.ownerId)
+          .collection('dogs')
+          .doc(widget.dogId);
 
-      // Update the dog document with the image URL
       await dogDocRef.update({
-        'image': downloadUrl,  // Update or create 'image' field with the URL
+        'images': FieldValue.arrayUnion([downloadUrl]), // Save as an array
       });
 
-      print("Image URL saved to Firestore successfully");
+      print("✅ Image URL saved successfully");
     } catch (e) {
-      print("Error saving image URL to Firestore: $e");
+      print("❌ Error saving image URL: $e");
     }
-  }
-
-
-  @override
-  void initState() {
-    super.initState();
-    dogDataMap = widget.dogData;
   }
 
   @override
@@ -89,10 +114,7 @@ class MyDogScreenState extends State<MyDogScreen> {
       appBar: AppBar(
         title: Text(
           '${dogDataMap['dog_name']}',
-          style: TextStyle(
-            fontFamily: "Roboto",
-            color: Colors.white,
-          ),
+          style: TextStyle(fontFamily: "Roboto", color: Colors.white),
         ),
         backgroundColor: Colors.black,
         iconTheme: IconThemeData(color: Colors.white),
@@ -102,10 +124,12 @@ class MyDogScreenState extends State<MyDogScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Upload Pictures',style: TextStyle(color: Colors.black,fontSize: 24,fontWeight: FontWeight.bold),),
+            Text('Upload Pictures', style: TextStyle(color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold)),
             SizedBox(height: 16),
+
+            // 🟢 Display Uploaded Images
             GridView.builder(
-              itemCount: 1,
+              itemCount: imageUrls.length + 1, // +1 for upload button
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -114,143 +138,79 @@ class MyDogScreenState extends State<MyDogScreen> {
                 mainAxisSpacing: 8,
               ),
               itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return SafeArea(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              ListTile(
-                                leading: Icon(Icons.photo_library),
-                                title: Text(
-                                  'Choose from Gallery',
-                                  style: TextStyle(fontFamily: "Roboto"),
+                if (index == imageUrls.length) {
+                  return GestureDetector(
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return SafeArea(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                ListTile(
+                                  leading: Icon(Icons.photo_library),
+                                  title: Text('Choose from Gallery', style: TextStyle(fontFamily: "Roboto")),
+                                  onTap: () {
+                                    _getImage(ImageSource.gallery);
+                                    Navigator.pop(context);
+                                  },
                                 ),
-                                onTap: () {
-                                  _getImage(ImageSource.gallery);
-                                  Navigator.pop(context);
-                                },
-                              ),
-                              ListTile(
-                                leading: Icon(Icons.camera_alt),
-                                title: Text(
-                                  'Take a Photo',
-                                  style: TextStyle(fontFamily: "Roboto"),
+                                ListTile(
+                                  leading: Icon(Icons.camera_alt),
+                                  title: Text('Take a Photo', style: TextStyle(fontFamily: "Roboto")),
+                                  onTap: () {
+                                    _getImage(ImageSource.camera);
+                                    Navigator.pop(context);
+                                  },
                                 ),
-                                onTap: () {
-                                  _getImage(ImageSource.camera);
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(10),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(10)),
+                      child: Center(child: Icon(Icons.camera_alt, color: Colors.black)),
                     ),
-                    child: Center(
-                      child: Icon(
-                        Icons.camera_alt,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                );
+                  );
+                } else {
+                  return Image.network(imageUrls[index], fit: BoxFit.cover);
+                }
               },
             ),
+
             SizedBox(height: 24),
-            Text(
-              'Dog Information',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
+
+            Text('Dog Information', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black)),
             SizedBox(height: 16),
+
+            // Dog Details
             Card(
               elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               child: Column(
                 children: [
-                  Divider(height: 0, thickness: 1, color: Colors.grey[300]),
                   ListTile(
                     leading: Icon(Icons.pets, color: Colors.black),
-                    title: Text(
-                      'Dog Name:',
-                      style: TextStyle(fontSize: 16, color: Colors.black),
-                    ),
-                    subtitle: Text(
-                      '${dogDataMap['dog_name']}',
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    title: Text('Dog Name:', style: TextStyle(fontSize: 16, color: Colors.black)),
+                    subtitle: Text('${dogDataMap['dog_name']}', style: TextStyle(fontSize: 16)),
                   ),
-                  Divider(height: 0, thickness: 1, color: Colors.grey[300]),
                   ListTile(
                     leading: Icon(Icons.description, color: Colors.black),
-                    title: Text(
-                      'Description:',
-                      style: TextStyle(fontSize: 16, color: Colors.black),
-                    ),
-                    subtitle: Text(
-                      '${dogDataMap['description']}',
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    title: Text('Description:', style: TextStyle(fontSize: 16, color: Colors.black)),
+                    subtitle: Text('${dogDataMap['description']}', style: TextStyle(fontSize: 16)),
                   ),
                   ListTile(
                     leading: Icon(Icons.location_on, color: Colors.black),
-                    title: Text(
-                      'Location:',
-                      style: TextStyle(fontSize: 16, color: Colors.black),
-                    ),
-                    subtitle: Text(
-                      '${dogDataMap['location']}',
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    title: Text('Location:', style: TextStyle(fontSize: 16, color: Colors.black)),
+                    subtitle: Text('${dogDataMap['location']}', style: TextStyle(fontSize: 16)),
                   ),
-                  Divider(height: 0, thickness: 1, color: Colors.grey[300]),
                   ListTile(
                     leading: Icon(Icons.phone_android, color: Colors.black),
-                    title: Text(
-                      'Phone Number:',
-                      style: TextStyle(fontSize: 16, color: Colors.black),
-                    ),
-                    subtitle: Text(
-                      '${dogDataMap['phone_number']}',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ), Divider(height: 0, thickness: 1, color: Colors.grey[300]),
-                  ListTile(
-                    leading: Icon(Icons.cake_outlined, color: Colors.black),
-                    title: Text(
-                      'Age',
-                      style: TextStyle(fontSize: 16, color: Colors.black),
-                    ),
-                    subtitle: Text(
-                      '${dogDataMap['age']}',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ), Divider(height: 0, thickness: 1, color: Colors.grey[300]),
-                  ListTile(
-                    leading: Icon(Icons.pets_outlined, color: Colors.black),
-                    title: Text(
-                      'Breed',
-                      style: TextStyle(fontSize: 16, color: Colors.black),
-                    ),
-                    subtitle: Text(
-                      '${dogDataMap['breed']}',
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    title: Text('Phone Number:', style: TextStyle(fontSize: 16, color: Colors.black)),
+                    subtitle: Text('${dogDataMap['phone_number']}', style: TextStyle(fontSize: 16)),
                   ),
                 ],
               ),

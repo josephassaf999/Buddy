@@ -42,7 +42,7 @@ class _SignupPageState extends State<SignupPage> {
           style: TextStyle(color: Colors.white),
         ),
         elevation: 0,
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.blue,
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
@@ -153,7 +153,7 @@ class _SignupPageState extends State<SignupPage> {
                   },
                   minWidth: double.infinity,
                   height: 60,
-                  color: Colors.black,
+                  color: Colors.blue,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(50),
                   ),

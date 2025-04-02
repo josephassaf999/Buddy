@@ -44,7 +44,7 @@ class _DOHomeScreenState extends State<DOHomeScreen> {
       MaterialPageRoute(
         builder: (context) => MyDogScreen(
           dogData: dogSnapshot.data() as Map<String, dynamic>,
-          dogId: '',
+          dogId: '', ownerId: '',
         ),
       ),
     );
@@ -60,7 +60,7 @@ class _DOHomeScreenState extends State<DOHomeScreen> {
           'Home',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.blue,
         actions: [
           IconButton(
             icon: Icon(Icons.menu),
@@ -134,7 +134,7 @@ class _DOHomeScreenState extends State<DOHomeScreen> {
                 child: Text('Add Dog', style: TextStyle(fontSize: 18)),
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: Colors.black,
+                  backgroundColor: Colors.blue,
                   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
@@ -150,7 +150,7 @@ class _DOHomeScreenState extends State<DOHomeScreen> {
           children: [
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.black,
+                color: Colors.blue,
               ),
               child: Text(
                 'Menu',
@@ -162,7 +162,7 @@ class _DOHomeScreenState extends State<DOHomeScreen> {
             ),
 
             ListTile(
-              leading: Icon(Icons.message, color: Colors.black),
+              leading: Icon(Icons.message, color: Colors.blue),
               title: Text(
                 'Messaging',
                 style: TextStyle(fontSize: 18, color: Colors.black87),

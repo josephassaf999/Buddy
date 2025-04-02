@@ -115,7 +115,7 @@ class _SearchScreenState extends State<SearchScreen> {
           'Search Dogs',  // Change the title to 'Search Dogs'
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.black, // Set app bar color to black
+        backgroundColor: Colors.blue, // Set app bar color to black
         automaticallyImplyLeading: false, // Remove the back arrow
       ),
       body: Container(

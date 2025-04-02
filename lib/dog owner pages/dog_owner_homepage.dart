@@ -26,14 +26,14 @@ class _DogOwnerHomePageState extends State<DogOwnerHomepage> {
       child: Scaffold(
         body: _pages[_currentIndex], // ✅ No more empty list error
         bottomNavigationBar: Container(
-          color: Colors.black,
+          color: Colors.blue,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
             child: GNav(
-              backgroundColor: Colors.black,
+              backgroundColor: Colors.blue,
               color: Colors.white,
               activeColor: Colors.white,
-              tabBackgroundColor: Colors.black,
+              tabBackgroundColor: Colors.blue,
               gap: 8,
               selectedIndex: _currentIndex,
               onTabChange: (index) {
@@ -62,7 +62,7 @@ class _DogOwnerHomePageState extends State<DogOwnerHomepage> {
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel', style: TextStyle(color: Colors.black)),
+            child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),

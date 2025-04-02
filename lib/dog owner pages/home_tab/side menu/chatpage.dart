@@ -71,9 +71,9 @@ class _ChatScreenState extends State<ChatScreen> {
     // Validate the conversationId
     if (conversationId.isEmpty) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text("Error"),
-          backgroundColor: Colors.black,
+        appBar: AppBar(iconTheme:IconThemeData(color: Colors.white),
+          title: Text("Error",style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.blue,
         ),
         body: Center(
           child: Text("Conversation ID is missing or invalid.", style: TextStyle(color: Colors.red)),

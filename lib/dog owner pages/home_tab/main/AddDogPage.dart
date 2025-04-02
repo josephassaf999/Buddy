@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
 
 class AddDogsScreen extends StatefulWidget {
   @override
@@ -16,8 +19,38 @@ class _AddDogsScreenState extends State<AddDogsScreen> {
   String _phoneNumber = '';
   String _age = '';
   String _breed = '';
+  String _imageUrl = ''; // Store the image URL here
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _uploadImage(File imageFile) async {
+    try {
+      String fileName = 'dog_images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      // Upload the image to Firebase Storage
+      UploadTask uploadTask = _storage.ref().child(fileName).putFile(imageFile);
+      TaskSnapshot snapshot = await uploadTask;
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+
+      setState(() {
+        _imageUrl = downloadUrl; // Store the image URL here
+      });
+      print('Image uploaded successfully: $downloadUrl');
+    } catch (e) {
+      print('Error uploading image: $e');
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      File imageFile = File(pickedFile.path);
+      await _uploadImage(imageFile);
+    } else {
+      print('No image selected.');
+    }
+  }
 
   Future<void> _addDogToFirestore(BuildContext context) async {
     try {
@@ -35,6 +68,7 @@ class _AddDogsScreenState extends State<AddDogsScreen> {
           'phone_number': _phoneNumber,
           'age': _age,
           'breed': _breed,
+          'image': _imageUrl,  // Add the image URL to Firestore
         });
 
         // Save the dog ID back into the dog's document
@@ -184,6 +218,28 @@ class _AddDogsScreenState extends State<AddDogsScreen> {
                   });
                 },
               ),
+              SizedBox(height: 20),
+
+              // Add Image Upload Button
+              ElevatedButton(
+                onPressed: _pickImage,
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.black,
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  'Pick an Image',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
