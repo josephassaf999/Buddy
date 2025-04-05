@@ -14,3 +14,4 @@ key.properties
 **/*.jks
 
 /lib/firebase_init.dart
+/app/
