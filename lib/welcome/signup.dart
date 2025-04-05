@@ -342,7 +342,7 @@ class _SignupPageState extends State<SignupPage> {
       await userDocRef.set(userData);
 
       // Navigate to the appropriate homepage based on the selected account type
-      navigateToHomePage(selectedAccountType == 'Dog Walker'
+      navigateToHomePage(selectedAccountType == 'Dog walker'
           ? const DogWalkerHomepage()
           :const DogOwnerHomepage() );
     } catch (e) {

@@ -116,7 +116,7 @@ class MyDogScreenState extends State<MyDogScreen> {
           '${dogDataMap['dog_name']}',
           style: TextStyle(fontFamily: "Roboto", color: Colors.white),
         ),
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.blue,
         iconTheme: IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
@@ -172,7 +172,7 @@ class MyDogScreenState extends State<MyDogScreen> {
                     },
                     child: Container(
                       decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(10)),
-                      child: Center(child: Icon(Icons.camera_alt, color: Colors.black)),
+                      child: Center(child: Icon(Icons.camera_alt, color: Colors.blue)),
                     ),
                   );
                 } else {
@@ -193,22 +193,22 @@ class MyDogScreenState extends State<MyDogScreen> {
               child: Column(
                 children: [
                   ListTile(
-                    leading: Icon(Icons.pets, color: Colors.black),
+                    leading: Icon(Icons.pets, color: Colors.blue),
                     title: Text('Dog Name:', style: TextStyle(fontSize: 16, color: Colors.black)),
                     subtitle: Text('${dogDataMap['dog_name']}', style: TextStyle(fontSize: 16)),
                   ),
                   ListTile(
-                    leading: Icon(Icons.description, color: Colors.black),
+                    leading: Icon(Icons.description, color: Colors.blue),
                     title: Text('Description:', style: TextStyle(fontSize: 16, color: Colors.black)),
                     subtitle: Text('${dogDataMap['description']}', style: TextStyle(fontSize: 16)),
                   ),
                   ListTile(
-                    leading: Icon(Icons.location_on, color: Colors.black),
+                    leading: Icon(Icons.location_on, color: Colors.blue),
                     title: Text('Location:', style: TextStyle(fontSize: 16, color: Colors.black)),
                     subtitle: Text('${dogDataMap['location']}', style: TextStyle(fontSize: 16)),
                   ),
                   ListTile(
-                    leading: Icon(Icons.phone_android, color: Colors.black),
+                    leading: Icon(Icons.phone_android, color: Colors.blue),
                     title: Text('Phone Number:', style: TextStyle(fontSize: 16, color: Colors.black)),
                     subtitle: Text('${dogDataMap['phone_number']}', style: TextStyle(fontSize: 16)),
                   ),
