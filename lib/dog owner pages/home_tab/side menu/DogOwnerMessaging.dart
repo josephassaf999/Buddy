@@ -34,20 +34,37 @@ class DOMessaging extends StatelessWidget {
                 Map<String, dynamic> dogWalkerData = document.data() as Map<String, dynamic>;
 
                 return GestureDetector(
-                  onTap: () {
+                  onTap: () async {
                     String currentDogOwnerId = FirebaseAuth.instance.currentUser?.uid ?? '';
                     String otherDogWalkerId = document.id;
                     Map<String, dynamic> otherDogWalkerData = dogWalkerData;
 
-                    // Generate a unique conversationId (e.g., combining both user IDs)
-                    String conversationId = currentDogOwnerId.compareTo(otherDogWalkerId) <= 0
+                    // Generate a unique conversationId (walkerId-ownerId)
+                    String conversationId = currentDogOwnerId.compareTo(otherDogWalkerId) < 0
                         ? '$currentDogOwnerId-$otherDogWalkerId'
                         : '$otherDogWalkerId-$currentDogOwnerId';
+
+                    // Check if the conversation already exists
+                    DocumentSnapshot conversationSnapshot = await FirebaseFirestore.instance
+                        .collection('Chats')
+                        .doc(conversationId)
+                        .get();
+
+                    if (!conversationSnapshot.exists) {
+                      // If the conversation does not exist, create a new conversation
+                      FirebaseFirestore.instance.collection('Chats')
+                          .doc(conversationId)
+                          .set({
+                        'participants': [currentDogOwnerId, otherDogWalkerId],
+                        'lastMessageTimestamp': FieldValue.serverTimestamp(),
+                      });
+                    }
 
                     // Fetch the Dog Owner's data (such as name) and pass it to the chat screen
                     FirebaseFirestore.instance.collection('Dog owner').doc(currentDogOwnerId).get().then((dogOwnerDoc) {
                       Map<String, dynamic> dogOwnerData = dogOwnerDoc.data() as Map<String, dynamic>;
 
+                      // Navigate to the chat screen with the conversation ID
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -55,7 +72,7 @@ class DOMessaging extends StatelessWidget {
                             senderUserId: currentDogOwnerId,
                             recipientUserId: otherDogWalkerId,
                             recipientUserData: otherDogWalkerData,
-                            conversationId: conversationId, // Pass the generated conversationId
+                            conversationId: conversationId, // Pass the conversationId
                             senderUserData: dogOwnerData, // Pass the Dog Owner's data
                           ),
                         ),
