@@ -107,7 +107,7 @@ class InfoPage extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ChatScreen(
+              builder: (context) => DWChatScreen(
                 dogOwnerId: ownerId, // ✅ Pass the actual ownerId
                 dogName: name,
               ),

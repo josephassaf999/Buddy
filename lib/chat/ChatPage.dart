@@ -2,31 +2,34 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class ChatScreen extends StatefulWidget {
-  final String dogOwnerId;  // The owner userId from Firebase
+class DWChatScreen extends StatefulWidget {
+  final String dogOwnerId;
   final String dogName;
 
-  ChatScreen({required this.dogOwnerId, required this.dogName});
+  DWChatScreen({required this.dogOwnerId, required this.dogName});
 
   @override
-  _ChatScreenState createState() => _ChatScreenState();
+  _DWChatScreenState createState() => _DWChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _DWChatScreenState extends State<DWChatScreen> {
   TextEditingController _messageController = TextEditingController();
-  String ownerUsername = ""; // To store the owner's username
+  String ownerUsername = "";
 
-  // Fetch the owner's username from the 'Dog owner' collection
+  String generateConversationId(String id1, String id2) {
+    return id1.compareTo(id2) < 0 ? '$id1-$id2' : '$id2-$id1';
+  }
+
   void _fetchOwnerUsername() async {
     try {
       DocumentSnapshot ownerDoc = await FirebaseFirestore.instance
-          .collection('Dog owner') // Fetching from the 'Dog owner' collection
-          .doc(widget.dogOwnerId) // Get the owner by their ID
+          .collection('Dog owner')
+          .doc(widget.dogOwnerId)
           .get();
 
       if (ownerDoc.exists) {
         setState(() {
-          ownerUsername = ownerDoc['username'] ?? "Unknown User"; // Get the username from Firestore
+          ownerUsername = ownerDoc['username'] ?? "Unknown User";
         });
       }
     } catch (error) {
@@ -34,39 +37,45 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  // Send message to Firestore
   void _sendMessage() async {
     if (_messageController.text.isNotEmpty) {
       String message = _messageController.text;
       String senderId = FirebaseAuth.instance.currentUser?.uid ?? "anonymous";
+      String recipientId = widget.dogOwnerId;
+      String conversationId = generateConversationId(senderId, recipientId);
 
-      // Save message to Firestore under the chat document for this specific user pair
-      await FirebaseFirestore.instance.collection('Chats')
-          .doc('${senderId}_${widget.dogOwnerId}')
-          .collection('messages')
-          .add({
-        'text': message,
-        'senderId': senderId,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
-
-      _messageController.clear();  // Clear the input after sending the message
+      try {
+        await FirebaseFirestore.instance.collection('Chats')
+            .doc(conversationId)
+            .collection('messages')
+            .add({
+          'text': message,
+          'senderId': senderId,
+          'recipientId': recipientId,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+        _messageController.clear();
+      } catch (e) {
+        print("Error sending message: $e");
+      }
     }
   }
 
   @override
   void initState() {
     super.initState();
-    _fetchOwnerUsername(); // Fetch the owner's username when the screen is loaded
+    _fetchOwnerUsername();
   }
 
   @override
   Widget build(BuildContext context) {
+    String senderId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    String conversationId = generateConversationId(senderId, widget.dogOwnerId);
+
     return Scaffold(
-      appBar: AppBar(iconTheme: IconThemeData(color: Colors.white),
-        title: ownerUsername.isEmpty
-            ? Text('Loading...',style: TextStyle(color: Colors.white),) // Show a loading text until the username is fetched
-            : Text('Chat with $ownerUsername',style: TextStyle(color: Colors.white),), // Display the owner's username in the AppBar
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: Colors.white),
+        title: Text('$ownerUsername', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.blue,
       ),
       body: Column(
@@ -75,7 +84,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('Chats')
-                  .doc('${FirebaseAuth.instance.currentUser?.uid ?? "anonymous"}_${widget.dogOwnerId}')
+                  .doc(conversationId)
                   .collection('messages')
                   .orderBy('timestamp', descending: true)
                   .snapshots(),
@@ -85,38 +94,34 @@ class _ChatScreenState extends State<ChatScreen> {
                 }
 
                 final messages = snapshot.data!.docs;
-                List<Widget> messageWidgets = [];
-                for (var message in messages) {
+                List<Widget> messageWidgets = messages.map((message) {
                   String messageText = message['text'];
                   String messageSender = message['senderId'];
 
-                  bool isCurrentUser = messageSender == FirebaseAuth.instance.currentUser?.uid;
+                  bool isCurrentUser = messageSender == senderId;
 
-                  messageWidgets.add(
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5.0),
-                      child: Align(
-                        alignment: isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
-                          decoration: BoxDecoration(
-                            color: isCurrentUser ? Colors.blue : Colors.grey,
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          child: Text(
-                            messageText,
-                            style: TextStyle(
-                              color: isCurrentUser ? Colors.white : Colors.black,fontSize: 17.5
-                            ),
-                          ),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5.0),
+                    child: Align(
+                      alignment: isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
+                      child: Container(
+                        margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                        padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+                        decoration: BoxDecoration(
+                          color: isCurrentUser ? Colors.blue : Colors.green,
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: Text(
+                          messageText,
+                          style: TextStyle(color: Colors.white, fontSize: 17.5),
                         ),
                       ),
                     ),
                   );
-                }
+                }).toList();
 
                 return ListView(
-                  reverse: true,  // So new messages appear at the bottom
+                  reverse: true,
                   children: messageWidgets,
                 );
               },
@@ -127,10 +132,11 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: "Type a message...",
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
+                    child: TextField(
+                      controller: _messageController,
+                      decoration: InputDecoration(hintText: "Type a message..."),
                     ),
                   ),
                 ),

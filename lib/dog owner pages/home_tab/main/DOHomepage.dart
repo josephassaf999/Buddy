@@ -171,7 +171,7 @@ class _DOHomeScreenState extends State<DOHomeScreen> {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => BMessaging()),
+                  MaterialPageRoute(builder: (context) => DOMessaging()),
                 );
               },
             ),

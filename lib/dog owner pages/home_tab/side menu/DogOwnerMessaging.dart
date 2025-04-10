@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'chatpage.dart';
+import 'chatpage.dart'; // Ensure the correct import for your chat screen
 
-class BMessaging extends StatelessWidget {
+class DOMessaging extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,7 +16,7 @@ class BMessaging extends StatelessWidget {
         iconTheme: IconThemeData(color: Colors.white),
       ),
       body: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('Dog walker').snapshots(), // Updated collection name to 'DogWalkers'
+        stream: FirebaseFirestore.instance.collection('Dog walker').snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -31,26 +31,36 @@ class BMessaging extends StatelessWidget {
               itemCount: snapshot.data!.docs.length,
               itemBuilder: (context, index) {
                 DocumentSnapshot document = snapshot.data!.docs[index];
-                Map<String, dynamic> dogWalkerData =
-                document.data() as Map<String, dynamic>; // Renamed userData to dogWalkerData
+                Map<String, dynamic> dogWalkerData = document.data() as Map<String, dynamic>;
+
                 return GestureDetector(
                   onTap: () {
                     String currentDogOwnerId = FirebaseAuth.instance.currentUser?.uid ?? '';
                     String otherDogWalkerId = document.id;
                     Map<String, dynamic> otherDogWalkerData = dogWalkerData;
 
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ChatScreen(
-                          senderUserId: currentDogOwnerId,
-                          recipientUserId: otherDogWalkerId,
-                          recipientUserData: otherDogWalkerData,
-                          conversationId: '',
-                          senderUserData: {}, // This should be updated in ChatScreen to reflect the dog walker name
+                    // Generate a unique conversationId (e.g., combining both user IDs)
+                    String conversationId = currentDogOwnerId.compareTo(otherDogWalkerId) <= 0
+                        ? '$currentDogOwnerId-$otherDogWalkerId'
+                        : '$otherDogWalkerId-$currentDogOwnerId';
+
+                    // Fetch the Dog Owner's data (such as name) and pass it to the chat screen
+                    FirebaseFirestore.instance.collection('Dog owner').doc(currentDogOwnerId).get().then((dogOwnerDoc) {
+                      Map<String, dynamic> dogOwnerData = dogOwnerDoc.data() as Map<String, dynamic>;
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DOChatScreen(
+                            senderUserId: currentDogOwnerId,
+                            recipientUserId: otherDogWalkerId,
+                            recipientUserData: otherDogWalkerData,
+                            conversationId: conversationId, // Pass the generated conversationId
+                            senderUserData: dogOwnerData, // Pass the Dog Owner's data
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    });
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -66,7 +76,7 @@ class BMessaging extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          dogWalkerData['username'] ?? 'Dog Walker Name not available', // Updated text
+                          dogWalkerData['username'] ?? 'Dog Walker Name not available',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
