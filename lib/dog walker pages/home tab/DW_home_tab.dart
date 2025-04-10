@@ -35,7 +35,7 @@ class DWHomeScreen extends StatelessWidget {
                   } else if (dogsSnapshot.hasData && dogsSnapshot.data!.isNotEmpty) {
                     List<Dog> dogs = dogsSnapshot.data!;
 
-                    return SingleChildScrollView(  // Wrapping the content in SingleChildScrollView
+                    return SingleChildScrollView(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,11 +45,10 @@ class DWHomeScreen extends StatelessWidget {
                             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 16),
-                          // Grid View with the real dog data
                           GridView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
                               mainAxisSpacing: 16.0,
                               crossAxisSpacing: 16.0,
@@ -71,6 +70,7 @@ class DWHomeScreen extends StatelessWidget {
                                         location: dogs[index].location,
                                         phone_number: dogs[index].phoneNumber,
                                         description: dogs[index].description,
+                                        ownerId: dogs[index].ownerId, // 👈 Pass owner ID
                                       ),
                                     ),
                                   );
@@ -95,12 +95,10 @@ class DWHomeScreen extends StatelessWidget {
     );
   }
 
-  // Helper method to fetch dogs from each owner's subcollection
   Future<List<Dog>> _getDogsFromOwners(List<DocumentSnapshot> ownerDocs) async {
     List<Dog> dogs = [];
 
     for (var ownerDoc in ownerDocs) {
-      // Get the dogs subcollection for each dog owner
       var dogSnapshot = await FirebaseFirestore.instance
           .collection('Dog owner')
           .doc(ownerDoc.id)
@@ -110,13 +108,12 @@ class DWHomeScreen extends StatelessWidget {
       for (var dogDoc in dogSnapshot.docs) {
         Map<String, dynamic> dogData = dogDoc.data() as Map<String, dynamic>;
 
-        // Retrieve dog information
         String name = dogData['dog_name'] ?? '';
         String breed = dogData['dog_breed'] ?? '';
         String age = dogData['age']?.toString() ?? '';
-        List<String> imageUrls = List<String>.from(dogData['images'] ?? []); // Now fetching image URLs from 'images' field
+        List<String> imageUrls = List<String>.from(dogData['images'] ?? []);
         String location = dogData['location'] ?? '';
-        String phoneNumber = dogData['phone_number'] ?? ''; // Fetch the phone number
+        String phoneNumber = dogData['phone_number'] ?? '';
         String description = dogData['description'] ?? '';
 
         dogs.add(Dog(
@@ -127,6 +124,7 @@ class DWHomeScreen extends StatelessWidget {
           location: location,
           phoneNumber: phoneNumber,
           description: description,
+          ownerId: ownerDoc.id, // 👈 Store owner ID here
         ));
       }
     }
@@ -165,16 +163,16 @@ class DogWidget extends StatelessWidget {
                 ),
                 child: dog.imageUrls.isNotEmpty
                     ? Image.network(
-                  dog.imageUrls.first, // Fetch the first image URL from the list
+                  dog.imageUrls.first,
                   fit: BoxFit.cover,
                 )
-                    : const Placeholder(), // Placeholder if no image is available
+                    : const Placeholder(),
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                dog.name.isNotEmpty ? dog.name : 'No Name', // Display actual name or a fallback
+                dog.name.isNotEmpty ? dog.name : 'No Name',
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -189,7 +187,7 @@ class DogWidget extends StatelessWidget {
   }
 }
 
-// Dog model class for easier data management
+// Dog model class
 class Dog {
   final String name;
   final String breed;
@@ -198,6 +196,7 @@ class Dog {
   final String location;
   final String phoneNumber;
   final String description;
+  final String ownerId; // 👈 Owner recognition
 
   Dog({
     required this.name,
@@ -207,5 +206,6 @@ class Dog {
     required this.location,
     required this.phoneNumber,
     required this.description,
+    required this.ownerId,
   });
 }

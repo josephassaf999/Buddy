@@ -78,7 +78,7 @@ class _SearchScreenState extends State<SearchScreen> {
           breed: dog.breed,
           age: dog.age,
           phone_number: dog.phone_number,
-          description: dog.description,
+          description: dog.description, ownerId: '',
         ),
       ),
     );

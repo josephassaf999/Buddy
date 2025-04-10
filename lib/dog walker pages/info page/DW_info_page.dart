@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../chat/ChatPage.dart';
 
 class InfoPage extends StatelessWidget {
   final String name;  // Dog's name
@@ -8,6 +9,7 @@ class InfoPage extends StatelessWidget {
   final String phone_number;
   final List<String> imageUrls;  // List of image URLs for the dog
   final String description;  // Dog's description
+  final String ownerId;  // ✅ Add ownerId as a field
 
   InfoPage({
     Key? key,
@@ -18,6 +20,7 @@ class InfoPage extends StatelessWidget {
     required this.imageUrls,
     required this.phone_number,
     required this.description,
+    required this.ownerId, // ✅ Store this
   }) : super(key: key);
 
   @override
@@ -27,14 +30,13 @@ class InfoPage extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.blue,
         title: Text(
-          name,  // Display the dog's name in the AppBar
+          name,
           style: const TextStyle(color: Colors.white),
         ),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Image carousel/slider
             Container(
               height: 450,
               padding: const EdgeInsets.all(16),
@@ -54,8 +56,6 @@ class InfoPage extends StatelessWidget {
               )
                   : const Center(child: Text("No images available")),
             ),
-
-            // Dog details container
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -76,31 +76,46 @@ class InfoPage extends StatelessWidget {
                 children: [
                   Text(
                     name,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.blue,
                     ),
                   ),
-                  Text('Location: $location', style: TextStyle(fontSize: 16)),
-                  SizedBox(height: 12),
-                  Text('Breed: $breed', style: TextStyle(fontSize: 16)),
-                  SizedBox(height: 12),
-                  Text('Age: $age', style: TextStyle(fontSize: 16)),
-                  SizedBox(height: 12),
-                  Text('Phone Number: $phone_number', style: TextStyle(fontSize: 16)),
-                  SizedBox(height: 8),
-                  Text(
+                  Text('Location: $location', style: const TextStyle(fontSize: 16)),
+                  const SizedBox(height: 12),
+                  Text('Breed: $breed', style: const TextStyle(fontSize: 16)),
+                  const SizedBox(height: 12),
+                  Text('Age: $age', style: const TextStyle(fontSize: 16)),
+                  const SizedBox(height: 12),
+                  Text('Phone Number: $phone_number', style: const TextStyle(fontSize: 16)),
+                  const SizedBox(height: 8),
+                  const Text(
                     'Description:',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
                   ),
-                  SizedBox(height: 8),
-                  Text(description, style: TextStyle(fontSize: 16)),
+                  const SizedBox(height: 8),
+                  Text(description, style: const TextStyle(fontSize: 16)),
                 ],
               ),
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatScreen(
+                dogOwnerId: ownerId, // ✅ Pass the actual ownerId
+                dogName: name,
+              ),
+            ),
+          );
+        },
+        child: const Icon(Icons.chat, color: Colors.white),
+        backgroundColor: Colors.blue,
       ),
       resizeToAvoidBottomInset: true,
     );
