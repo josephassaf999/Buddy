@@ -27,21 +27,6 @@ class DOAccountScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            // GestureDetector moved to the body above "Settings"
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const DOEditProfileScreen(),
-                  ),
-                );
-              },
-              child: const CircleAvatar(
-                radius: 40,
-              ),
-            ),
-            const SizedBox(height: 16), // Adding some spacing between avatar and settings
             const Text(
               'Settings',
               style: TextStyle(

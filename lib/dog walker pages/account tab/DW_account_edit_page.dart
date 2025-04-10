@@ -101,54 +101,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-              child: GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return SafeArea(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            ListTile(
-                              leading: const Icon(Icons.photo_library),
-                              title: const Text(
-                                'Choose from Gallery',
-                                style: TextStyle(fontFamily: "Roboto"),
-                              ),
-                              onTap: () {
-                                getImage(ImageSource.gallery); // Launch gallery
-                                Navigator.pop(context);
-                              },
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.camera_alt),
-                              title: const Text(
-                                'Take a Photo',
-                                style: TextStyle(fontFamily: "Roboto"),
-                              ),
-                              onTap: () {
-                                getImage(ImageSource.camera);
-                                Navigator.pop(context);
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundImage: _image != null ? FileImage(_image!) : null,
-                  child: _image == null
-                      ? const Icon(Icons.camera_alt, size: 40)
-                      : null,
-                ),
-              ),
-            ),
             TextFormField(
               controller: _emailController,
               decoration: const InputDecoration(labelText: 'Email Address'),
