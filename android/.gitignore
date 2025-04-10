@@ -14,4 +14,5 @@ key.properties
 **/*.jks
 
 /lib/firebase_init.dart
-/app/google-services.json
+/app/
+google-services.json
