@@ -11,7 +11,8 @@ class MyDogScreen extends StatefulWidget {
 
   MyDogScreen({
     required this.dogId,
-    required this.dogData, required String ownerId,
+    required this.dogData,
+    required String ownerId,
   });
 
   @override
@@ -117,6 +118,34 @@ class MyDogScreenState extends State<MyDogScreen> {
     }
   }
 
+  Future<void> _deleteImage(String imageUrl) async {
+    try {
+      // Delete from Firebase Storage
+      Reference imageRef = _storage.refFromURL(imageUrl);
+      await imageRef.delete();
+      print("✅ Image deleted from storage");
+
+      // Remove from Firestore
+      DocumentReference dogDocRef = FirebaseFirestore.instance
+          .collection('Dog owner')
+          .doc(ownerId)
+          .collection('dogs')
+          .doc(dogId);
+
+      await dogDocRef.update({
+        'images': FieldValue.arrayRemove([imageUrl]),
+      });
+
+      setState(() {
+        imageUrls.remove(imageUrl);
+      });
+
+      print("✅ Image URL removed from Firestore");
+    } catch (e) {
+      print("❌ Error deleting image: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -184,12 +213,26 @@ class MyDogScreenState extends State<MyDogScreen> {
                     ),
                   );
                 } else {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.network(
-                      imageUrls[index - 1],
-                      fit: BoxFit.cover,
-                    ),
+                  return Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(
+                          imageUrls[index - 1],
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Positioned(
+                        top: -10,
+                        right: -10,
+                        child: IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            _deleteImage(imageUrls[index - 1]);
+                          },
+                        ),
+                      ),
+                    ],
                   );
                 }
               },

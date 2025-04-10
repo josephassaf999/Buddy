@@ -50,6 +50,30 @@ class _DOHomeScreenState extends State<DOHomeScreen> {
     );
   }
 
+  Future<void> deleteDog(DocumentSnapshot dog) async {
+    try {
+      String dogId = dog.id;
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+
+      // Deleting the dog from Firestore
+      await FirebaseFirestore.instance
+          .collection('Dog owner')
+          .doc(userId)
+          .collection('dogs')
+          .doc(dogId)
+          .delete();
+
+      // Update UI by removing the dog from the list
+      setState(() {
+        ownedDogs.remove(dog);
+      });
+
+      print("✅ Dog deleted successfully");
+    } catch (e) {
+      print("❌ Error deleting dog: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,6 +131,37 @@ class _DOHomeScreenState extends State<DOHomeScreen> {
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black),
+                            ),
+                            trailing: IconButton(
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              onPressed: () {
+                                // Show confirmation dialog
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text('Delete Dog'),
+                                      content: Text(
+                                          'Are you sure you want to delete this dog?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text('Cancel',style: TextStyle(color: Colors.blue),),
+                                        ),
+                                        TextButton(
+                                          onPressed: () async {
+                                            await deleteDog(ownedDogs[index]);
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text('Delete',style: TextStyle(color: Colors.red),),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
                             ),
                           ),
                         ),
