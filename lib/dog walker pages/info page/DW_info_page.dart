@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../chat/ChatPage.dart';
+import '../../chat/DWChatPage.dart';
 
 class InfoPage extends StatelessWidget {
   final String name;  // Dog's name

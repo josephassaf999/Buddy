@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'chatpage.dart'; // Ensure the correct import for your chat screen
+import 'DOChatPage.dart'; // Ensure the correct import for your chat screen
 
 class DOMessaging extends StatelessWidget {
   @override
