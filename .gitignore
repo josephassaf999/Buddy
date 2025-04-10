@@ -35,7 +35,6 @@ migrate_working_dir/
 .build/firebase_init.dart
 
 
-google-services.json
 
 # Symbolication related
 app.*.symbols
