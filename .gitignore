@@ -32,6 +32,10 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+.build/firebase_init.dart
+
+
+google-services.json
 
 # Symbolication related
 app.*.symbols
@@ -43,7 +47,4 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-/android/app/
-/android
-google-services.json
 /lib/firebase_init.dart
