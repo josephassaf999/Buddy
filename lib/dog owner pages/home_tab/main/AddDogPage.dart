@@ -23,7 +23,6 @@ class _AddDogsScreenState extends State<AddDogsScreen> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
-  final ImagePicker _picker = ImagePicker();
 
   Future<void> _uploadImage(File imageFile) async {
     try {
@@ -39,16 +38,6 @@ class _AddDogsScreenState extends State<AddDogsScreen> {
       print('Image uploaded successfully: $downloadUrl');
     } catch (e) {
       print('Error uploading image: $e');
-    }
-  }
-
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      File imageFile = File(pickedFile.path);
-      await _uploadImage(imageFile);
-    } else {
-      print('No image selected.');
     }
   }
 
@@ -218,28 +207,6 @@ class _AddDogsScreenState extends State<AddDogsScreen> {
                   });
                 },
               ),
-              SizedBox(height: 20),
-
-              // Add Image Upload Button
-              ElevatedButton(
-                onPressed: _pickImage,
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Colors.blue,
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: Text(
-                  'Pick an Image',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {

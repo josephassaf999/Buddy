@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'info page/DW_info_page.dart';
+import '../info page/DW_info_page.dart';
+
 
 // Dog class
 class Dog {

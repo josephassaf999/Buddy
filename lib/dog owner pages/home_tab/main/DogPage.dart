@@ -3,17 +3,15 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class MyDogScreen extends StatefulWidget {
-  final String ownerId; // Owner's ID
-  final String dogId; // Dog's ID
-  final Map<String, dynamic> dogData; // Dog's data (e.g., name, description)
+  final Map<String, dynamic> dogData;
+  final String dogId;
 
-  // Constructor that takes ownerId, dogId, and dogData
   MyDogScreen({
-    required this.ownerId,
     required this.dogId,
-    required this.dogData,
+    required this.dogData, required String ownerId,
   });
 
   @override
@@ -23,23 +21,38 @@ class MyDogScreen extends StatefulWidget {
 class MyDogScreenState extends State<MyDogScreen> {
   late Map<String, dynamic> dogDataMap;
   final FirebaseStorage _storage = FirebaseStorage.instance;
-  List<String> imageUrls = []; // Store uploaded image URLs
+  List<String> imageUrls = [];
+  late String ownerId;
+  late String dogId;
 
   @override
   void initState() {
     super.initState();
     dogDataMap = widget.dogData;
-    _loadExistingImages();
+
+    // Fetch the current user's ID from Firebase Authentication
+    ownerId = FirebaseAuth.instance.currentUser?.uid ?? '';
+
+    dogId = widget.dogId.isNotEmpty ? widget.dogId : widget.dogData['dog_id'] ?? '';
+
+    print('🐶 ownerId: $ownerId');
+    print('🐶 dogId: $dogId');
+    print('🐶 dogData: ${widget.dogData}');
+
+    if (ownerId.isNotEmpty && dogId.isNotEmpty) {
+      _loadExistingImages();
+    } else {
+      print("! ownerId or dogId is empty. Skipping image load.");
+    }
   }
 
-  // 🟢 Load existing images from Firestore
   Future<void> _loadExistingImages() async {
     try {
       DocumentSnapshot doc = await FirebaseFirestore.instance
           .collection('Dog owner')
-          .doc(widget.ownerId)
+          .doc(ownerId)
           .collection('dogs')
-          .doc(widget.dogId)
+          .doc(dogId)
           .get();
 
       if (doc.exists && doc.data() != null) {
@@ -53,7 +66,6 @@ class MyDogScreenState extends State<MyDogScreen> {
     }
   }
 
-  // 🟢 Pick an image from the gallery or camera
   Future<void> _getImage(ImageSource source) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: source);
@@ -66,10 +78,9 @@ class MyDogScreenState extends State<MyDogScreen> {
     }
   }
 
-  // 🔹 Upload image to Firebase Storage and get URL
   Future<void> _uploadImage(File imageFile) async {
     try {
-      String fileName = 'dog_images/${widget.dogId}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      String fileName = 'dog_images/$dogId/${DateTime.now().millisecondsSinceEpoch}.jpg';
       Reference storageRef = _storage.ref().child(fileName);
 
       UploadTask uploadTask = storageRef.putFile(imageFile);
@@ -78,28 +89,26 @@ class MyDogScreenState extends State<MyDogScreen> {
       String downloadUrl = await snapshot.ref.getDownloadURL();
       print("✅ Upload Success: $downloadUrl");
 
-      await _saveImageUrlToFirestore(downloadUrl); // Save to Firestore
+      await _saveImageUrlToFirestore(downloadUrl);
 
-      // Update UI
       setState(() {
-        imageUrls.add(downloadUrl);
+        imageUrls.insert(0, downloadUrl);
       });
     } catch (e) {
       print("❌ Upload Error: $e");
     }
   }
 
-  // 🔹 Save image URL to Firestore in the 'dogs' subcollection
   Future<void> _saveImageUrlToFirestore(String downloadUrl) async {
     try {
       DocumentReference dogDocRef = FirebaseFirestore.instance
           .collection('Dog owner')
-          .doc(widget.ownerId)
+          .doc(ownerId)
           .collection('dogs')
-          .doc(widget.dogId);
+          .doc(dogId);
 
       await dogDocRef.update({
-        'images': FieldValue.arrayUnion([downloadUrl]), // Save as an array
+        'images': FieldValue.arrayUnion([downloadUrl]),
       });
 
       print("✅ Image URL saved successfully");
@@ -127,9 +136,8 @@ class MyDogScreenState extends State<MyDogScreen> {
             Text('Upload Pictures', style: TextStyle(color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold)),
             SizedBox(height: 16),
 
-            // 🟢 Display Uploaded Images
             GridView.builder(
-              itemCount: imageUrls.length + 1, // +1 for upload button
+              itemCount: imageUrls.length + 1,
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -138,7 +146,7 @@ class MyDogScreenState extends State<MyDogScreen> {
                 mainAxisSpacing: 8,
               ),
               itemBuilder: (context, index) {
-                if (index == imageUrls.length) {
+                if (index == 0) {
                   return GestureDetector(
                     onTap: () {
                       showModalBottomSheet(
@@ -176,17 +184,21 @@ class MyDogScreenState extends State<MyDogScreen> {
                     ),
                   );
                 } else {
-                  return Image.network(imageUrls[index], fit: BoxFit.cover);
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.network(
+                      imageUrls[index - 1],
+                      fit: BoxFit.cover,
+                    ),
+                  );
                 }
               },
             ),
 
             SizedBox(height: 24),
-
             Text('Dog Information', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black)),
             SizedBox(height: 16),
 
-            // Dog Details
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

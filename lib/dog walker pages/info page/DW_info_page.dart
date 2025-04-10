@@ -36,7 +36,7 @@ class InfoPage extends StatelessWidget {
           children: [
             // Image carousel/slider
             Container(
-              height: 250,
+              height: 450,
               padding: const EdgeInsets.all(16),
               child: imageUrls.isNotEmpty
                   ? PageView.builder(

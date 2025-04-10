@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../search tab/info page/DW_info_page.dart';
+import '../info page/DW_info_page.dart';
 
 class DWHomeScreen extends StatelessWidget {
   DWHomeScreen({Key? key});
@@ -35,7 +35,7 @@ class DWHomeScreen extends StatelessWidget {
                   } else if (dogsSnapshot.hasData && dogsSnapshot.data!.isNotEmpty) {
                     List<Dog> dogs = dogsSnapshot.data!;
 
-                    return Padding(
+                    return SingleChildScrollView(  // Wrapping the content in SingleChildScrollView
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,7 +114,7 @@ class DWHomeScreen extends StatelessWidget {
         String name = dogData['dog_name'] ?? '';
         String breed = dogData['dog_breed'] ?? '';
         String age = dogData['age']?.toString() ?? '';
-        List<String> imageUrls = List<String>.from(dogData['imageUrls'] ?? []);
+        List<String> imageUrls = List<String>.from(dogData['images'] ?? []); // Now fetching image URLs from 'images' field
         String location = dogData['location'] ?? '';
         String phoneNumber = dogData['phone_number'] ?? ''; // Fetch the phone number
         String description = dogData['description'] ?? '';
@@ -163,10 +163,12 @@ class DogWidget extends StatelessWidget {
                   topLeft: Radius.circular(10),
                   topRight: Radius.circular(10),
                 ),
-                child: Image.network(
-                  dog.imageUrls.isNotEmpty ? dog.imageUrls.first : 'assets/placeholder_image.jpg', // Use a placeholder image
+                child: dog.imageUrls.isNotEmpty
+                    ? Image.network(
+                  dog.imageUrls.first, // Fetch the first image URL from the list
                   fit: BoxFit.cover,
-                ),
+                )
+                    : const Placeholder(), // Placeholder if no image is available
               ),
             ),
             Padding(
