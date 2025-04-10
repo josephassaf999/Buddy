@@ -44,5 +44,3 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /android/app/
-lib/
-firebase_init.dart
