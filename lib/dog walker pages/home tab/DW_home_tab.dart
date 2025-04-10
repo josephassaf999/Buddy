@@ -109,7 +109,7 @@ class DWHomeScreen extends StatelessWidget {
         Map<String, dynamic> dogData = dogDoc.data() as Map<String, dynamic>;
 
         String name = dogData['dog_name'] ?? '';
-        String breed = dogData['dog_breed'] ?? '';
+        String breed = dogData['breed'] ?? '';
         String age = dogData['age']?.toString() ?? '';
         List<String> imageUrls = List<String>.from(dogData['images'] ?? []);
         String location = dogData['location'] ?? '';
