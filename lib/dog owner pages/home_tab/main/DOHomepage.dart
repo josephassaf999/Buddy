@@ -219,7 +219,7 @@ class _DOHomeScreenState extends State<DOHomeScreen> {
             ListTile(
               leading: Icon(Icons.message, color: Colors.blue),
               title: Text(
-                'Messaging',
+                'Messages',
                 style: TextStyle(fontSize: 18, color: Colors.black87),
               ),
               onTap: () {
