@@ -5,6 +5,7 @@ Buddy is a mobile app designed to connect dog owners with trusted local dog walk
 
 
 
+![Screenshot 2025-04-10 041038](https://github.com/user-attachments/assets/b4e459e7-22c1-4c84-8d24-9a936111e58b)
 
 
 
